@@ -18,8 +18,8 @@ from pydantic import BaseModel, Field
 # Configuración
 # ----------------------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
-MODELO_PATH = BASE_DIR / "Models" / "modelo_final_lgbm.joblib"
-FEATURES_PATH = BASE_DIR / "Models" / "features_modelo_final.joblib"
+MODELO_PATH = BASE_DIR / "models" / "modelo_final_lgbm.joblib"
+FEATURES_PATH = BASE_DIR / "models" / "features_modelo_final.joblib"
 
 app = FastAPI(
     title="API Predicción de Demanda - Trazos y Hojas",
