@@ -134,6 +134,10 @@ def landing():
           #resultado.err { background: #F6E2D8; border: 1px solid #D9824A; color: #8A3B18; }
                     #estado { display: none; margin: 4px 0 10px; padding: 14px 18px; border-radius: 8px;
                     background: #E3ECD8; border: 1px solid #7D955B; color: #33471F; }
+                    #resultadoDia { margin-top: 18px; padding: 16px; border-radius: 8px; font-size: 1.05em;
+                         display: none; }
+          #resultadoDia.ok  { background: #E3ECD8; border: 1px solid #7D955B; color: #33471F; }
+          #resultadoDia.err { background: #F6E2D8; border: 1px solid #D9824A; color: #8A3B18; }
           #estado.err { background: #F6E2D8; border-color: #D9824A; color: #8A3B18; }
           #estado .titulo { font-weight: 700; font-size: 1.05em; }
           #estado .detalle { font-size: 0.9em; color: #4A6035; margin-top: 4px; }
@@ -193,6 +197,33 @@ def landing():
             <button class="btn btn-verde" onclick="predecir()">Predecir</button>
           </div>
           <div id="resultado"></div>
+        </div>
+
+                <h2>Predicción de un día (desde el histórico)</h2>
+        <p>Introduce el histórico de ventas de un producto (al menos 14 días, separados
+        por comas) y el día de la semana a predecir:</p>
+
+        <div class="formulario">
+          <div class="campo">
+            <label>Histórico de ventas (más antiguo primero)</label>
+            <input type="text" id="ventas_dia" value="3, 5, 2, 4, 6, 1, 0, 4, 5, 3, 2, 4, 6, 5">
+          </div>
+          <div class="campo" style="margin-top:14px; max-width:340px;">
+            <label>Día de la semana a predecir</label>
+            <select id="dia_dia">
+              <option value="0">0 - Lunes</option>
+              <option value="1">1 - Martes</option>
+              <option value="2" selected>2 - Miercoles</option>
+              <option value="3">3 - Jueves</option>
+              <option value="4">4 - Viernes</option>
+              <option value="5">5 - Sabado</option>
+              <option value="6">6 - Domingo</option>
+            </select>
+          </div>
+          <div style="margin-top:18px;">
+            <button class="btn btn-verde" onclick="predecirDia()">Predecir un dia</button>
+          </div>
+          <div id="resultadoDia"></div>
         </div>
 
         <h2>Previsión a 7 días</h2>
@@ -267,6 +298,40 @@ def landing():
               } else {
                 caja.className = "err";
                 caja.textContent = "Error en los datos enviados (revisa los campos).";
+              }
+            } catch (e) {
+              caja.className = "err";
+              caja.textContent = "No se pudo contactar con la API.";
+            }
+          }
+                    async function predecirDia() {
+            const texto = document.getElementById("ventas_dia").value;
+            const ventas = texto.split(",").map(x => parseFloat(x.trim())).filter(x => !isNaN(x));
+            const diaSemana = parseInt(document.getElementById("dia_dia").value);
+            const caja = document.getElementById("resultadoDia");
+            caja.style.display = "block";
+            caja.className = "";
+            caja.textContent = "Calculando...";
+
+            if (ventas.length < 14) {
+              caja.className = "err";
+              caja.textContent = "Se necesitan al menos 14 dias de historico.";
+              return;
+            }
+            try {
+              const resp = await fetch("/predict-historico", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ventas: ventas, Dia_semana: diaSemana })
+              });
+              const data = await resp.json();
+              if (resp.ok) {
+                caja.className = "ok";
+                caja.innerHTML = "<strong>Demanda estimada: " +
+                  data.unidades_estimadas + " unidades</strong><br>" + data.detalle;
+              } else {
+                caja.className = "err";
+                caja.textContent = "Error en los datos enviados.";
               }
             } catch (e) {
               caja.className = "err";
