@@ -26,6 +26,7 @@ apoyar esas decisiones con datos en lugar de intuición.
 
 ---
 
+
 ## 🚀 Endpoints
 
 | Método | Ruta | Descripción |
