@@ -132,6 +132,11 @@ def landing():
                        display: none; }
           #resultado.ok  { background: #E3ECD8; border: 1px solid #7D955B; color: #33471F; }
           #resultado.err { background: #F6E2D8; border: 1px solid #D9824A; color: #8A3B18; }
+                    #estado { display: none; margin: 4px 0 10px; padding: 14px 18px; border-radius: 8px;
+                    background: #E3ECD8; border: 1px solid #7D955B; color: #33471F; }
+          #estado.err { background: #F6E2D8; border-color: #D9824A; color: #8A3B18; }
+          #estado .titulo { font-weight: 700; font-size: 1.05em; }
+          #estado .detalle { font-size: 0.9em; color: #4A6035; margin-top: 4px; }
         </style>
       </head>
       <body>
@@ -141,8 +146,10 @@ def landing():
 
         <div class="botones">
           <a class="btn btn-verde" href="/docs">Documentacion (/docs)</a>
-          <a class="btn btn-marron" href="/health">Estado del servicio (/health)</a>
+          <button class="btn btn-marron" onclick="verEstado()">Estado del servicio</button>
         </div>
+
+        <div id="estado"></div>
 
         <h2>Probar una prediccion</h2>
         <p>Rellena el historico reciente de un producto y pulsa <strong>Predecir</strong>:</p>
@@ -315,6 +322,29 @@ def landing():
               caja.style.display = "block";
               grafica.innerHTML = "";
               nota.textContent = "No se pudo contactar con la API.";
+            }
+          }
+                  async function verEstado() {
+            const caja = document.getElementById("estado");
+            caja.style.display = "block";
+            caja.className = "";
+            caja.innerHTML = "Comprobando...";
+            try {
+              const resp = await fetch("/health");
+              const data = await resp.json();
+              if (resp.ok && data.estado === "ok") {
+                caja.className = "";
+                caja.innerHTML =
+                  '<div class="titulo">&#10003; Servicio activo</div>' +
+                  '<div class="detalle">Modelo cargado correctamente &middot; ' +
+                  data.n_features + ' variables de entrada</div>';
+              } else {
+                caja.className = "err";
+                caja.innerHTML = '<div class="titulo">Servicio con problemas</div>';
+              }
+            } catch (e) {
+              caja.className = "err";
+              caja.innerHTML = '<div class="titulo">No se pudo contactar con el servicio</div>';
             }
           }
         </script>
