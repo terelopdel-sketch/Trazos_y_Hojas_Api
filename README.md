@@ -26,7 +26,6 @@ apoyar esas decisiones con datos en lugar de intuición.
 
 ---
 
-
 ## 🚀 Endpoints
 
 | Método | Ruta | Descripción |
@@ -38,13 +37,25 @@ apoyar esas decisiones con datos en lugar de intuición.
 | `POST` | `/predict-historico` | Predicción de un día a partir del histórico de ventas |
 | `POST` | `/predict-semana` | Previsión a 7 días (predicción autoregresiva) |
 
-### Ejemplo de uso
+### Ejemplos de uso
 
-**Predicción a partir del histórico de ventas:**
+**Predicción de un día con las variables ya calculadas:**
 
 ```python
 import requests
 
+datos = {
+    "lag_1": 5, "lag_7": 4, "media_movil_7": 4.5,
+    "media_movil_14": 4.2, "std_movil_7": 1.3, "Dia_semana": 2
+}
+r = requests.post("https://trazos-y-hojas-api.onrender.com/predict", json=datos)
+print(r.json())
+# {'unidades_estimadas': 5.66, 'detalle': 'Demanda estimada para el dia...'}
+```
+
+**Predicción de un día a partir del histórico de ventas:**
+
+```python
 datos = {
     "ventas": [3, 5, 2, 4, 6, 1, 0, 4, 5, 3, 2, 4, 6, 5],
     "Dia_semana": 2
@@ -104,6 +115,23 @@ estimación de cada día se incorpora al histórico para predecir el siguiente.
 - **pytest** — batería de tests
 - **GitHub Actions** — integración continua (los tests se ejecutan en cada push)
 - **Render** — despliegue del servicio
+
+---
+
+## 🌐 Uso en producción (sin instalar nada)
+
+La API está desplegada y accesible públicamente en Render. No necesitas instalar
+nada: puedes usarla directamente desde el navegador o desde código.
+
+🔗 **URL base:** [https://trazos-y-hojas-api.onrender.com](https://trazos-y-hojas-api.onrender.com)
+
+- **Interfaz web:** abre la URL en el navegador para probar las predicciones con formularios.
+- **Documentación interactiva:** [/docs](https://trazos-y-hojas-api.onrender.com/docs)
+- **Desde código:** todos los ejemplos de este README ya apuntan a esta URL base.
+
+> ℹ️ El servicio está alojado en el plan gratuito de Render. Si lleva un rato sin
+> usarse, la primera petición puede tardar unos 30-60 segundos en responder mientras
+> el servicio se reactiva. Las siguientes son inmediatas.
 
 ---
 
