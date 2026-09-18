@@ -117,6 +117,17 @@ def landing():
                          margin-bottom: 4px; }
           .campo input, .campo select { width: 100%; padding: 8px 10px; border: 1px solid #CFC7B0;
                          border-radius: 6px; font-size: 1em; box-sizing: border-box; }
+                    .grafica { display: flex; align-items: flex-end; gap: 10px; height: 220px;
+                     margin-top: 20px; padding: 14px 10px 0; border-bottom: 2px solid #CFC7B0; }
+          .barra-col { flex: 1; display: flex; flex-direction: column; align-items: center;
+                       justify-content: flex-end; height: 100%; }
+          .barra { width: 100%; background: #7D955B; border-radius: 6px 6px 0 0;
+                   transition: height 0.3s; min-height: 2px; }
+          .barra-valor { font-size: 0.82em; font-weight: 600; color: #4A6035; margin-bottom: 4px; }
+          .barra-dia { font-size: 0.78em; color: #8F7C52; margin-top: 6px; text-align: center; }
+          #previsionResultado { display: none; margin-top: 8px; }
+          #previsionResultado .nota { font-size: 0.85em; color: #8F7C52; font-style: italic;
+                     margin-top: 14px; }
           #resultado { margin-top: 18px; padding: 16px; border-radius: 8px; font-size: 1.05em;
                        display: none; }
           #resultado.ok  { background: #E3ECD8; border: 1px solid #7D955B; color: #33471F; }
@@ -177,6 +188,36 @@ def landing():
           <div id="resultado"></div>
         </div>
 
+        <h2>Previsión a 7 días</h2>
+        <p>Introduce el histórico de ventas (al menos 14 días, separados por comas)
+        y el día de la semana del primer día a prever:</p>
+
+        <div class="formulario">
+          <div class="campo">
+            <label>Histórico de ventas (más antiguo primero)</label>
+            <input type="text" id="ventas" value="3, 5, 2, 4, 6, 1, 0, 4, 5, 3, 2, 4, 6, 5">
+          </div>
+          <div class="campo" style="margin-top:14px; max-width:340px;">
+            <label>Día de la semana del primer día</label>
+            <select id="dia_inicio">
+              <option value="0">0 - Lunes</option>
+              <option value="1">1 - Martes</option>
+              <option value="2" selected>2 - Miercoles</option>
+              <option value="3">3 - Jueves</option>
+              <option value="4">4 - Viernes</option>
+              <option value="5">5 - Sabado</option>
+              <option value="6">6 - Domingo</option>
+            </select>
+          </div>
+          <div style="margin-top:18px;">
+            <button class="btn btn-verde" onclick="preverSemana()">Prever 7 dias</button>
+          </div>
+          <div id="previsionResultado">
+            <div class="grafica" id="grafica"></div>
+            <div class="nota" id="notaPrevision"></div>
+          </div>
+        </div>
+
         <div class="endpoint">
           <h3>Los endpoints de la API</h3>
           <p><code>POST /predict</code> - prediccion de un dia con variables ya calculadas.<br>
@@ -223,6 +264,57 @@ def landing():
             } catch (e) {
               caja.className = "err";
               caja.textContent = "No se pudo contactar con la API.";
+            }
+          }
+                  const NOMBRES_DIA = ["Lun","Mar","Mie","Jue","Vie","Sab","Dom"];
+
+          async function preverSemana() {
+            const texto = document.getElementById("ventas").value;
+            const ventas = texto.split(",").map(x => parseFloat(x.trim())).filter(x => !isNaN(x));
+            const diaInicio = parseInt(document.getElementById("dia_inicio").value);
+            const caja = document.getElementById("previsionResultado");
+            const grafica = document.getElementById("grafica");
+            const nota = document.getElementById("notaPrevision");
+
+            if (ventas.length < 14) {
+              caja.style.display = "block";
+              grafica.innerHTML = "";
+              nota.textContent = "Se necesitan al menos 14 dias de historico.";
+              return;
+            }
+
+            try {
+              const resp = await fetch("/predict-semana", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ventas: ventas, Dia_semana: diaInicio })
+              });
+              const data = await resp.json();
+              if (!resp.ok) {
+                caja.style.display = "block";
+                grafica.innerHTML = "";
+                nota.textContent = "Error en los datos enviados.";
+                return;
+              }
+              const preds = data.predicciones;
+              const maximo = Math.max(...preds.map(p => p.unidades_estimadas), 1);
+
+              grafica.innerHTML = preds.map(p => {
+                const altura = (p.unidades_estimadas / maximo) * 100;
+                return '<div class="barra-col">' +
+                         '<div class="barra-valor">' + p.unidades_estimadas + '</div>' +
+                         '<div class="barra" style="height:' + altura + '%"></div>' +
+                         '<div class="barra-dia">Dia ' + p.dia + '<br>' +
+                            NOMBRES_DIA[p.dia_semana] + '</div>' +
+                       '</div>';
+              }).join("");
+
+              nota.textContent = data.detalle;
+              caja.style.display = "block";
+            } catch (e) {
+              caja.style.display = "block";
+              grafica.innerHTML = "";
+              nota.textContent = "No se pudo contactar con la API.";
             }
           }
         </script>
