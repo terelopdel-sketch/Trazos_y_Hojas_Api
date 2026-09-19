@@ -170,25 +170,34 @@ pytest -v
 
 ## 📁 Estructura del proyecto
 
-````
+```
 Trazos_y_Hojas_Api/
-├── app/
-│   └── main.py
-├── models/
-│   ├── modelo_final_lgbm.joblib
-│   └── features_modelo_final.joblib
-├── test/
-│   └── test_api.py
-├── .github/workflows/
-│   └── ci.yml
-├── requirements.txt
-├── requirements-dev.txt
-├── runtime.txt
-└── render.yaml
-````
+│
+├── app/                              # El código de la API
+│   ├── __init__.py                   # Marca la carpeta como módulo de Python
+│   └── main.py                       # La API: endpoints, validación y carga del modelo
+│
+├── models/                           # El modelo entrenado
+│   ├── modelo_final_lgbm.joblib      # Modelo LightGBM ya entrenado
+│   └── features_modelo_final.joblib  # Lista de variables que espera el modelo
+│
+├── test/                             # Pruebas automáticas
+│   └── test_api.py                   # Tests con pytest (los ejecuta el CI)
+│
+├── .github/
+│   └── workflows/
+│       └── ci.yml                    # Control de errores automático (GitHub Actions)
+│
+├── requirements.txt                  # Dependencias que necesita la API en producción
+├── requirements-dev.txt              # Dependencias extra para desarrollo y tests
+├── runtime.txt                       # Versión de Python para el despliegue en Render
+├── pytest.ini                        # Configuración de pytest (dónde buscar el código)
+├── .gitignore                        # Archivos que Git debe ignorar
+└── README.md                         # Documentación y presentación del proyecto
+```
 
 ---
 
 ## 👤 Autora
 
-**Tere** — Proyecto personal de Machine Learning y despliegue de modelos.
+**María Teresa López Delgado** — Proyecto personal de Machine Learning y despliegue de modelos.
