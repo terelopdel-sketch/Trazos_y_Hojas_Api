@@ -130,9 +130,10 @@ nada: puedes usarla directamente desde el navegador o desde código.
 - **Documentación interactiva:** [/docs](https://trazos-y-hojas-api.onrender.com/docs)
 - **Desde código:** todos los ejemplos de este README ya apuntan a esta URL base.
 
-> ℹ️ El servicio está alojado en el plan gratuito de Render. Si lleva un rato sin
-> usarse, la primera petición puede tardar unos 30-60 segundos en responder mientras
-> el servicio se reactiva. Las siguientes son inmediatas.
+> ℹ️ El servicio está alojado en el plan gratuito de Render, que suspende las
+> aplicaciones tras un rato de inactividad. Para evitarlo, un **cron job** consulta
+> periódicamente el endpoint `/health` y mantiene el servicio siempre activo, de modo
+> que las peticiones responden sin demora.
 
 ---
 
@@ -176,7 +177,7 @@ Trazos_y_Hojas_Api/
 ├── models/
 │   ├── modelo_final_lgbm.joblib
 │   └── features_modelo_final.joblib
-├── tests/
+├── test/
 │   └── test_api.py
 ├── .github/workflows/
 │   └── ci.yml
